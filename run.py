@@ -2,12 +2,9 @@
 # -*- coding: utf-8 -*-
 
 
-import tweepy, time, sys, os, json
+import twitter, time, sys, os, json
 from random import randint
 from ConfigParser import SafeConfigParser
-from tweepy.streaming import StreamListener
-from tweepy import OAuthHandler
-from tweepy import Stream
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -26,9 +23,6 @@ CONSUMER_SECRET = parser.get('Twitter', 'CONSUMER_SECRET')
 ACCESS_KEY = parser.get('Twitter', 'ACCESS_KEY')
 ACCESS_SECRET = parser.get('Twitter', 'ACCESS_SECRET')
 
-EMOJI_RESPONSE_ARRAY = ['🤔', '🐶', '🐕', '🐩', '🐺', '🐾']
-DEFAULT_RESPONSES = ['What\'s updog?', 'what\'s updog?', 'What\'s updog', 'what\'s updog', 'What\'s Updog?', 'what\'s Updog?', 'What\'s Updog', 'what\'s Updog']
-
 # Blacklists, all lowercase
 BLACKLISTED_USERS = ['updogband']
 BLACKLISTED_TEXT = ['posey', 'brandie', 'blissbends', 'yoga', 'tour']
@@ -36,31 +30,16 @@ BLACKLISTED_TEXT = ['posey', 'brandie', 'blissbends', 'yoga', 'tour']
 with open('badwords.json') as data_file:
     BLACKLISTED_TEXT.extend(json.load(data_file))
 
-auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
-api = tweepy.API(auth)
+api = twitter.Api(consumer_key=CONSUMER_KEY,
+                  consumer_secret=CONSUMER_SECRET,
+                  access_token_key=ACCESS_KEY,
+                  access_token_secret=ACCESS_SECRET)
 
 # To ensure some rate limiting
-MIN_SECS_BETWEEN_RESPONSES = 15
-lastResponseTimestamp = time.time()
+MIN_SECS_BETWEEN_TWEETS = 15
+lastTweetTimestamp = time.time()
 
-# Keep track of the latest people we've responded to
-CIRCULAR_ARRAY_MAX_CAPACITY = 4
-circularArrayOfHandles = [''] * CIRCULAR_ARRAY_MAX_CAPACITY
-circularArrayPointer = 0
 
-# Update the circular array and increment the pointer
-def updateCircularArray(handle):
-	global circularArrayPointer
-
-	# Insert handle into our list of handles we've last responded to
-	if not handle in circularArrayOfHandles:
-		circularArrayOfHandles[circularArrayPointer] = handle
-		circularArrayPointer = circularArrayPointer + 1
-		if circularArrayPointer >= CIRCULAR_ARRAY_MAX_CAPACITY:
-			circularArrayPointer = 0
-	
-	print circularArrayOfHandles
 
 # Ensure the given object is a str, not a unicode object
 def unicodeToStr(s):
@@ -70,29 +49,18 @@ def unicodeToStr(s):
 
 # Posts a response tweet
 def respond(tweet):
-	global lastResponseTimestamp
+	global lastTweetTimestamp
 
-	tweetInterval = time.time() - lastResponseTimestamp
-	if tweetInterval < MIN_SECS_BETWEEN_RESPONSES:
+
+	tweetInterval = time.time() - lastTweetTimestamp
+
+	if tweetInterval < MIN_SECS_BETWEEN_TWEETS:
 		print 'Rate limit: Just tweeted ' + str(tweetInterval) + ' secs ago'
 		return
 
-	lastResponseTimestamp = time.time()
+	lastTweetTimestamp = time.time()
 
-	handle = '@' + tweet.screen_name
-	replyText = handle + ' '
-
-	if BOT_NAME in tweet.text.lower() or 'updog bot' in tweet.text.lower():
-		# If they're aware of us, respond with an emoji
-		replyText = replyText + EMOJI_RESPONSE_ARRAY[randint(0, len(EMOJI_RESPONSE_ARRAY)-1)]
-	elif 'what\'s updog' in tweet.text.lower() or 'what is updog' in tweet.text.lower():
-		# If they're asking what it is, only respond with the thinking face emoji
-		replyText = replyText + '🤔'
-	else:
-		# Ask what updog is
-		replyText = replyText + DEFAULT_RESPONSES[randint(0, len(DEFAULT_RESPONSES)-1)]
-
-	api.update_status(status = replyText, in_reply_to_status_id = tweet.tweet_id)
+	
 
 # RTs the given tweet
 def retweet(tweet):
@@ -236,7 +204,7 @@ class TweetListener(StreamListener):
 		print status
 
 if __name__ == '__main__':
-	print '\n\n-----\nStarting up the updog bot...'
+	print '\n\n-----\nStarting up the youtube artifact explainer bot...'
 	listener = TweetListener()
 	stream = Stream(auth, listener)	
 	stream.filter(track=['updog', 'Updog'])
