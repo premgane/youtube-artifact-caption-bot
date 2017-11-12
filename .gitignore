@@ -103,3 +103,5 @@ ENV/
 
 # Twitter secrets
 secrets.cfg
+
+tmp.jpg
