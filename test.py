@@ -42,7 +42,11 @@ message = 'hello world ' + in_reply_to_url
 urllib.urlretrieve(tweet_of_interest.media[0]['media_url'], 'tmp.jpg')
 
 
+output = os.system('sh /Users/prem/Desktop/Development/sandbox/tensorflow-models/models/research/im2txt/run.sh > output.txt')
 
+print('done!')
+
+os.system('cat output.txt | grep "0)"')
 
 #status = api.PostUpdate(message)
 
