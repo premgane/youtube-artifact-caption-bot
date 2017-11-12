@@ -61,9 +61,3 @@ message = best_guess_caption + ' ' + in_reply_to_url
 print(message)
 
 status = api.PostUpdate(message, in_reply_to_status_id=tweet_of_interest.id)
-
-
-'''
-for line in api.GetStreamFilter(track=['@LetsBeSapid']):
-	status = api.PostUpdate(message)
-'''
