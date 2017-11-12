@@ -1,7 +1,8 @@
 from ConfigParser import SafeConfigParser
 from random import randint
-import twitter, time, sys, os, json, pprint, urllib
+import twitter, time, sys, os, json, pprint, urllib, re, random
 
+random.seed()
 pp = pprint.PrettyPrinter(indent=2)
 
 parser = SafeConfigParser()
@@ -32,12 +33,12 @@ for tweet in tweets:
 			if media['media_url']:
 				tweets_with_media.append(tweet)
 
-tweet_of_interest = tweets_with_media[randint(0, len(tweets_with_media))-1]
+tweet_of_interest = tweets_with_media[randint(0, len(tweets_with_media)-1)]
 
 pp.pprint(tweet_of_interest.id)
 
 in_reply_to_url = 'https://twitter.com/youtubeartifact/status/' + str(tweet_of_interest.id)
-message = 'hello world ' + in_reply_to_url
+
 
 urllib.urlretrieve(tweet_of_interest.media[0]['media_url'], 'tmp.jpg')
 
@@ -46,9 +47,20 @@ output = os.system('sh /Users/prem/Desktop/Development/sandbox/tensorflow-models
 
 print('done!')
 
-os.system('cat output.txt | grep "0)"')
+f = open("output.txt","r")
+output = f.read().splitlines()
+f.close()
 
-#status = api.PostUpdate(message)
+caption_raw = output[randint(0, 2)];
+
+best_guess_caption = re.search(r'\)([^(]+)\(', caption_raw).group(1)
+
+
+message = best_guess_caption + ' ' + in_reply_to_url
+
+print(message)
+
+status = api.PostUpdate(message, in_reply_to_status_id=tweet_of_interest.id)
 
 
 '''
