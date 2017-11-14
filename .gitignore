@@ -105,3 +105,4 @@ ENV/
 secrets.cfg
 
 tmp.jpg
+output.txt
