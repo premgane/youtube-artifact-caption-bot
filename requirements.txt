@@ -137,7 +137,7 @@ supervisor==3.2.3
 TBB==0.1
 tensorflow==1.0.0
 tensorflow-tensorboard==0.4.0rc2
-thefuck==3.3
+thefuck==3.31
 tldextract==2.0.1
 torch==0.2.0.post3
 torchvision==0.1.9
